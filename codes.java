@@ -1,3 +1,5 @@
+// Solved all 3 cases
+
 import java.util.*;
 
 public class codes {
@@ -124,6 +126,3 @@ public class codes {
         }
     }
 }
-
-
-
