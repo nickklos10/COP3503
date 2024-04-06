@@ -1,17 +1,123 @@
-// Solved all 3 cases
-
 import java.util.*;
+
+class Edge {
+    int v1, v2, cap, flow;
+    Edge rev;
+
+    Edge(int V1, int V2, int Cap, int Flow) {
+        v1 = V1;
+        v2 = V2;
+        cap = Cap;
+        flow = Flow;
+    }
+}
+
+class Dinic {
+
+    public ArrayDeque<Integer> q;
+    public ArrayList<Edge>[] adj;
+    public int n;
+    public int s;
+    public int t;
+    public boolean[] blocked;
+    public int[] dist;
+    final public static int oo = (int)1E9;
+
+    public Dinic (int N) {
+        n = N;
+        s = n++;
+        t = n++;
+        blocked = new boolean[n];
+        dist = new int[n];
+        q = new ArrayDeque<>();
+        adj = new ArrayList[n];
+        for (int i = 0; i < n; ++i) {
+            adj[i] = new ArrayList<>();
+        }
+    }
+
+    public void add(int v1, int v2, int cap, int flow) {
+        Edge e = new Edge(v1, v2, cap, flow);
+        Edge rev = new Edge(v2, v1, 0, 0);
+        e.rev = rev;
+        rev.rev = e;
+        adj[v1].add(e);
+        adj[v2].add(rev);
+    }
+
+    public boolean bfs() {
+        q.clear();
+        Arrays.fill(dist, -1);
+        dist[t] = 0;
+        q.add(t);
+
+        while (!q.isEmpty()) {
+            int node = q.poll();
+            for (Edge e : adj[node]) {
+                if (e.rev.cap > e.rev.flow && dist[e.v2] == -1) {
+                    dist[e.v2] = dist[node] + 1;
+                    q.add(e.v2);
+                }
+            }
+        }
+
+        return dist[s] != -1;
+    }
+
+    public int dfs(int pos, int min) {
+        if (pos == t) {
+            return min;
+        }
+
+        int flow = 0;
+        for (Edge e : adj[pos]) {
+            int cur = 0;
+            if (!blocked[e.v2] && dist[e.v2] == dist[pos] - 1 && e.cap - e.flow > 0) {
+                cur = dfs(e.v2, Math.min(min - flow, e.cap - e.flow));
+                e.flow += cur;
+                e.rev.flow = -e.flow;
+                flow += cur;
+            }
+
+            if (flow == min) {
+                return flow;
+            }
+        }
+
+        blocked[pos] = flow != min;
+        return flow;
+    }
+
+    public int flow() {
+        clear();
+        int ret = 0;
+
+        while (bfs()) {
+            Arrays.fill(blocked, false);
+            ret += dfs(s, oo);
+        }
+        return ret;
+    }
+
+    public void clear() {
+        for (ArrayList<Edge> edges : adj) {
+            for (Edge e : edges) {
+                e.flow = 0;
+            }
+        }
+    }
+}
 
 public class codes {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        int n = scanner.nextInt(); // Number of drugs
-        int m = scanner.nextInt(); // Number of codes
-        scanner.nextLine(); // Consume the newline character
+        int n = scanner.nextInt();
+        int m = scanner.nextInt();
+        scanner.nextLine();
 
         String[] drugs = new String[n];
-        List<String> codes = new ArrayList<>();
+        ArrayList<String> codes = new ArrayList<>();
 
         for (int i = 0; i < n; i++) {
             drugs[i] = scanner.nextLine();
@@ -21,108 +127,55 @@ public class codes {
             codes.add(scanner.nextLine());
         }
 
-        // Sort codes to find the lexicographically first mapping
-        Collections.sort(codes);
+        Collections.sort(codes); // Sort the codes lexicographically
 
-        FordFulkerson ff = new FordFulkerson(n + m);
-        Map<Integer, String> drugToCodeMap = new HashMap<>();
+        Dinic dinic = new Dinic(n + m);
 
-        // Create the bipartite graph with sorted codes
         for (int drugIndex = 0; drugIndex < n; drugIndex++) {
-            for (int codeIndex = 0; codeIndex < m; codeIndex++) {
-                if (drugs[drugIndex].contains(codes.get(codeIndex))) {
-                    ff.add(drugIndex, n + codeIndex, 1); // Connect drug to sorted code
-                    drugToCodeMap.put(n + codeIndex, codes.get(codeIndex));
+            for (String code : codes) {
+                if (drugs[drugIndex].contains(code)) {
+                    dinic.add(drugIndex, n + codes.indexOf(code), 1, 0);
                 }
             }
         }
 
-        // Connect source to all drugs and all codes to sink
         for (int i = 0; i < n; i++) {
-            ff.add(ff.source, i, 1);
+            dinic.add(dinic.s, i, 1, 0);
         }
         for (int i = 0; i < m; i++) {
-            ff.add(n + i, ff.sink, 1);
+            dinic.add(n + i, dinic.t, 1, 0);
         }
 
-        // Run the max flow algorithm
-        int maxFlow = ff.ff();
+        int maxFlow = dinic.flow();
 
-        // If the max flow is less than the number of drugs, a valid mapping is not possible
         if (maxFlow < n) {
             System.out.println("no");
-            scanner.close();
-            return; // Terminate the program
-        }
-
-        // Output the valid mapping in lexicographical order
-        System.out.println("yes");
-        for (int drugIndex = 0; drugIndex < n; drugIndex++) {
-            for (int codeIndex = 0; codeIndex < m; codeIndex++) {
-                // Check if the edge from the drug to the code has been used in the matching (flow is 0)
-                if (ff.cap[drugIndex][n + codeIndex] == 0 && ff.cap[n + codeIndex][drugIndex] == 1) {
-                    System.out.println(drugToCodeMap.get(n + codeIndex));
-                    break;
-                }
-            }
-        }
-
-        scanner.close();
-    }
-
-    // Insert your provided FordFulkerson class here
-    public static class FordFulkerson {
-        public int[][] cap;
-        public int n;
-        public int source;
-        public int sink;
-        final public static int oo = (int)(1E9);
-
-        public FordFulkerson(int size) {
-            n = size + 2;
-            source = n - 2;
-            sink = n - 1;
-            cap = new int[n][n];
-        }
-
-        public void add(int v1, int v2, int c) {
-            cap[v1][v2] = c;
-        }
-
-        public int ff() {
-            boolean[] visited = new boolean[n];
-            int flow = 0;
-
-            while (true) {
-                Arrays.fill(visited, false);
-                int res = dfs(source, visited, oo);
-
-                if (res == 0) break;
-                flow += res;
-            }
-            return flow;
-        }
-
-        public int dfs(int v, boolean[] visited, int min) {
-            if (v == sink) return min;
-            if (visited[v]) return 0;
-
-            visited[v] = true;
-            int flow = 0;
-
-            for (int i = 0; i < n; i++) {
-                if (cap[v][i] > 0) {
-                    flow = dfs(i, visited, Math.min(cap[v][i], min));
-
-                    if (flow > 0) {
-                        cap[v][i] -= flow;
-                        cap[i][v] += flow;
-                        return flow;
+        } else {
+            System.out.println("yes");
+            // Iterate over each drug
+            for (int drugIndex = 0; drugIndex < n; drugIndex++) {
+                // Find all matched codes for the current drug
+                List<String> matchedCodes = new ArrayList<>();
+                for (Edge edge : dinic.adj[drugIndex]) {
+                    // Check if there is a flow and if the drug contains the code
+                    if (edge.flow == 1 && drugs[drugIndex].contains(codes.get(edge.v2 - n))) {
+                        matchedCodes.add(codes.get(edge.v2 - n));
                     }
                 }
+        
+                // Sort the matched codes to ensure lexicographical order
+                Collections.sort(matchedCodes);
+        
+                // Print the first (smallest) code if any match is found, else print "no"
+                if (!matchedCodes.isEmpty()) {
+                    System.out.println(matchedCodes.get(0));
+                } else {
+                    System.out.println("no");
+                }
             }
-
-            return 0;
         }
+        scanner.close();
     }
 }
+
+
