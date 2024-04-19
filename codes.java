@@ -1,3 +1,5 @@
+// Solved all 3 cases
+
 import java.util.*;
 
 class Edge {
