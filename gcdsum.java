@@ -1,3 +1,4 @@
+//solved both problems
 import java.io.*;
 import java.util.*;
 
