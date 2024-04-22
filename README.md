@@ -23,7 +23,7 @@ Once Java is installed, you can compile and run the Java files using the command
 3) Compile the Java file using the javac command:
    javac YourFileName.java
 
-   Replace YourFileName.java with the name of your Java file. This command will compile your Java code and generate a .class file in the same directory.
+   Replace YourFileName.java with the name of one of the Java files. This command will compile the Java code and generate a .class file in the same directory.
    
 4) Run the compiled Java file using the java command:
    java YourFileName
