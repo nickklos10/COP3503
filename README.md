@@ -1,6 +1,6 @@
 # COP3503 Java Class Repository
 
-Welcome to the COP3503 Java Class Repository! This repository is a comprehensive collection of Java files and resources used throughout the COP3503 course. Here, you'll find examples, homework assignments, project files, and additional resources that will assist you in mastering the concepts taught in the COP3503 class.
+Welcome to the COP3503 Java Class Repository! This repository is a comprehensive collection of Java files and resources I wrote and I used throughout the COP3503 course. Here, you'll find examples, homework assignments, project files, and additional resources from the COP3503 class with professor Arup Guha at the University of Central Florida.
 
 ### About COP3503
 
