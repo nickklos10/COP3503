@@ -1,4 +1,4 @@
-//solved both problems
+//solved both problems from assignment
 import java.io.*;
 import java.util.*;
 
