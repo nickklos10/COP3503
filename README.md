@@ -9,8 +9,9 @@ COP3503 is an intermediate-level programming course that delves into specific al
 ### Getting Started
 
 To dive into the COP3503 Java Class Repository, clone it to your local machine using the following command:
-
+```
 git clone https://github.com/nickklos10/COP3503
+```
 
 ### Running java files
 
@@ -21,11 +22,15 @@ Once Java is installed, you can compile and run the Java files using the command
 1) Open your command line interface (CLI).
 2) Navigate to the directory containing the Java file you wish to run. For example, if your file is in the assignments/week1/ directory, use the command cd path/to/assignments/week1.
 3) Compile the Java file using the javac command:
+   ```
    javac YourFileName.java
+   ```
 
    Replace YourFileName.java with the name of one of the Java files. This command will compile the Java code and generate a .class file in the same directory.
    
 4) Run the compiled Java file using the java command:
+   ```
    java YourFileName
+   ```
 
 
